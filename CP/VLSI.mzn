@@ -15,8 +15,3 @@ var int: chip_height = max(b in BLOCKS)(blocks_y[b] + heights[b]);
 constraint cumulative(blocks_x, widths, heights, chip_height);
 
 solve minimize chip_height;
-output [
-    "x-s   =", show(blocks_x), "\n",
-    "y-s   =", show(blocks_y), "\n",
-    "chip_height = ", show(chip_height), "\n"
-];
