@@ -1,9 +1,5 @@
 chip_width = 8;
+chip_max_height=16;
 n_blocks = 4;
-dimensions =   % The precedence relations
-  [| 3, 3
-  |3, 5
-  |5, 3
-  |5, 5|];
-
-       
+widths = [3,3,5,5];
+heights = [3,5,3,5];

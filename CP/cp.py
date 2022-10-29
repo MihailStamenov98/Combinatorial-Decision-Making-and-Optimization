@@ -1,42 +1,48 @@
-from minizinc import Instance, Model, Solver
 from typing import List
-from dataclasses import InitVar, dataclass
 import os
 import sys
+from my_types import BlocksDistribution, Constants
+from argument_parser import parsArguments
 cur_path = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(
-                  cur_path, 
-                  os.pardir)
+    cur_path,
+    os.pardir)
 )
 sys.path.append(PROJECT_ROOT)
-
-from utils import readFile
-
-
-@dataclass
-class BlocksDistribution:
-    def __init__(self, blocks_x, blocks_y, objective):
-        self.blocks_x = blocks_x
-        self.blocks_x = blocks_y
-        self.chipHeight = objective
-    __output_item: InitVar[str]
+from minizinc import Instance, Model, Solver
+from utils import writeFile, WriteData, readFile, Folder, computeMaxHeight
 
 
-chipWidth = "chip_width"
-nBlocks = "n_blocks"
-dimensions = "dimensions"
-chipHeight = "chip_height"
-
-
-for i in range(1, 2):
+def solveExample(i, args, strategy):
     data = readFile(i)
-    model = Model(cur_path+"\\VLSI.mzn")
-    model.output_type = BlocksDistribution
     gecode = Solver.lookup("gecode")
+    model=Model(cur_path+args.modelToUse)
+    model.output_type = BlocksDistribution
+    chipMaxHeight = computeMaxHeight(data.dimensions, data.w)
     instance = Instance(gecode, model)
-    instance[chipWidth] = data.w
-    instance[nBlocks] = data.n
-    instance[dimensions] = data.dimensions
+    #instance["restart"] = strategy.restart
+    #instance["changeVal"] = "input_order"
+    instance[Constants.chipWidth.value] = data.w
+    instance[Constants.nBlocks.value] = data.n
+    if args.rotated:
+        instance[Constants.dimensions.value] = data.dimensions
+    else:
+        instance[Constants.widths.value] = data.dimensions[0]
+        instance[Constants.heights.value] = data.dimensions[1]
+    instance[Constants.chipMaxHeight.value] = chipMaxHeight
     result = instance.solve().solution
-    assert type(result) == BlocksDistribution
-    print(result.blocks_x)
+    coordinates = list(zip(result.blocks_x, result.blocks_y))
+
+    writeData = WriteData(data.n, data.w, result.h,
+                          data.dimensions, coordinates, result.flipped)
+    writeFile(i, Folder.CP.value, writeData)
+
+def main():
+    args = parsArguments()
+    for strategy in args.solverStrategy:
+        for instance in args.instances:
+            solveExample(instance, args, strategy)
+
+
+if __name__ == '__main__':
+    main()
