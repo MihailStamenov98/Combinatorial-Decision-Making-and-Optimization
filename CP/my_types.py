@@ -3,11 +3,12 @@ from enum import Enum
 
 @dataclass
 class BlocksDistribution:
-    def __init__(self, blocks_x, blocks_y, objective, flipped=None):
+    def __init__(self, blocks_x, blocks_y, objective,  flat_board, flipped=None):
         self.blocks_x = blocks_x
         self.blocks_y = blocks_y
         self.h = objective
         self.flipped = flipped
+        self.flat_board = flat_board
     __output_item: InitVar[str]
 
 

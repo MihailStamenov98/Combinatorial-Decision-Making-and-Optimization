@@ -1,9 +1,0 @@
-chip_width = 8;
-n_blocks = 4;
-dimensions =   % The precedence relations
-  [| 3, 3
-  |3, 5
-  |5, 3
-  |5, 5|];
-
-       

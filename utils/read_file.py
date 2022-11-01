@@ -1,14 +1,14 @@
 import os
 
 
-class Data:
+class ReadData:
     def __init__(self, n, w, dimensions):
         self.n = n
         self.w = w
         self.dimensions = dimensions
 
 
-def readFile(i):
+def readFile(i) -> ReadData:
     cur_path = os.path.dirname(__file__)
     rel_path = f'../instances/ins-{i}.txt'
     with open(cur_path+'\\'+rel_path, 'r') as f:
@@ -20,4 +20,4 @@ def readFile(i):
             array[0].append(lineArr[0])
             array[1].append(lineArr[1])
 
-        return Data(n, w, array)
+        return ReadData(n, w, array)
