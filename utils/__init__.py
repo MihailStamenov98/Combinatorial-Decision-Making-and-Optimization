@@ -5,3 +5,4 @@ from utils.write_file import WriteData
 from utils.write_file import Folder
 from utils.calculate_max_height import computeMaxHeight
 from utils.plot_solution import plotSolution
+from utils.graph import graph
