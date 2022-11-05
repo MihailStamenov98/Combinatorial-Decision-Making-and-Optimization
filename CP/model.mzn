@@ -1,8 +1,8 @@
 include "globals.mzn";
 
-int: restart;
+/*int: restart;
 int: changeVal;
-
+*/
 int: chip_width;
 int: chip_max_height;
 int: n_blocks;   % Number of blocks
@@ -40,12 +40,14 @@ constraint lex_lesseq(flat_board, [ if i <= n_blocks
                                     endif | i in 1..2*n_blocks]);
 
 
-ann: search_ann_x = if heuristic == 1 then
+/*ann: search_ann_x = if heuristic == 1 then
   int_search(blocks_x, input_order, indomain_min)
 elseif heuristic == 2 then
   int_search(blocks_x, first_fail, indomain_min)
 elseif heuristic == 3 then
   int_search(blocks_x, dom_w_deg, indomain_min)
+elseif heuristic == 3 then
+  int_search(blocks_x, smallest, indomain_min)
 elseif heuristic == 4 then
   int_search(blocks_x, input_order, indomain_random)
 elseif heuristic == 5 then
@@ -54,8 +56,7 @@ else
   int_search(blocks_x, dom_w_deg, indomain_random)
 endif;
 
-ann: search_ann_y = int_search(blocks_y, changeVal, indomain_min)
-if heuristic == 1 then
+ann: search_ann_y = if heuristic == 1 then
   int_search(blocks_y, input_order, indomain_min)
 elseif heuristic == 2 then
   int_search(blocks_y, first_fail, indomain_min)
@@ -81,9 +82,12 @@ elseif restart == 4 then
 else
   restart_none
 endif;
-
+*/
 %solve minimize chip_height;
+ann: search_ann_x = int_search(blocks_x, dom_w_deg, indomain_min);
+ann: search_ann_y = int_search(blocks_y, first_fail, indomain_min);
 
+ann: restart_ann = restart_luby(100);
 solve :: search_ann_x
       :: search_ann_y
       :: restart_ann minimize chip_height;

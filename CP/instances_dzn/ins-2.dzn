@@ -1,4 +1,5 @@
-num_circuits=5;
-width=9;
-circuits_w=[3, 3, 3, 3, 3];
-circuits_h=[3, 4, 5, 6, 9];
+n_blocks=5;
+chip_width=9;
+widths=[3, 3, 3, 3, 3];
+heights=[3, 4, 5, 6, 9];
+chip_max_height=9

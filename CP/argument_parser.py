@@ -33,7 +33,7 @@ class ReturnType:
         self.rotated = args.rotation
         self.graph = args.graph
         self.draw = args.draw
-        self.instances = [args.instance] if args.instance is not None else range(1, 41)
+        self.instances = [args.instance] if args.instance is not None else range(24, 25)
 
 
 def parsArguments():

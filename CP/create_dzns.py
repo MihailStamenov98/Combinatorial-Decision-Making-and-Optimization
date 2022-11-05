@@ -7,7 +7,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(
     os.pardir)
 )
 sys.path.append(PROJECT_ROOT)
-from utils.read_file import ReadData, readFile, computeMaxHeight
+from utils import ReadData, readFile, computeMaxHeight
 
 
 
