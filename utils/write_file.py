@@ -16,7 +16,7 @@ class Folder(Enum):
     SAT = "SAT"
     MIP = "MIP"
 
-def writeFile(i, folder: Folder, data: WriteData):
+def writeFile(i, folder: Folder, data: WriteData) -> str:
     cur_path = os.path.dirname(__file__)
     solutionFolder = 'solution-rotation' if data.rotations is not None else 'solution'
     fileName = f'solution-{i}' if data.rotations is None else f'solution-with-rotation-{i}'
@@ -34,3 +34,4 @@ def writeFile(i, folder: Folder, data: WriteData):
                 f.write(f'{dimensions} {coordinates} {data.rotations[j]}\n')
 
         f.write(data.time)
+    return f'{fileName}'

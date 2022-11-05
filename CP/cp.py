@@ -12,12 +12,13 @@ PROJECT_ROOT = os.path.abspath(os.path.join(
     os.pardir)
 )
 sys.path.append(PROJECT_ROOT)
-from utils import writeFile, WriteData, readFile, Folder, computeMaxHeight
+from utils import writeFile, WriteData, readFile, Folder, plotSolution
 
 def decodeMinizincOutput(result, i) -> Solution:
     time = 300000
     h = None
     arr = result.splitlines()
+    print(result)
     while arr[0].startswith('%') or arr[0].startswith('WARNING'):
         if "time=" in arr[0]:
             time = float(arr[0].split("=")[-1])
@@ -54,13 +55,15 @@ def main():
             createDZN(instance, args.solverStrategy[0].restart, args.solverStrategy[0].chooseVal, data)
             command = f'minizinc -s --time-limit {300000} --solver chuffed -f model.mzn "./instances_dzn/ins-{instance}.dzn"'
             result = subprocess.getoutput(command)
-            print(result)
             solution = decodeMinizincOutput(result, instance)
             coordinates = list(zip(solution.x, solution.y))
             elapsedTime = f'{solution.time * 1000:.1f} ms'
             writeData = WriteData(data.n, data.w, solution.h,
                           data.dimensions, coordinates, elapsedTime, solution.rotated)
-            writeFile(instance, Folder.CP.value, writeData)
+            fileName = writeFile(instance, Folder.CP.value, writeData)
+            if args.draw:
+                fileNmae = ("solution-rotation/" if args.rotated else "solution/" ) + fileName + ".png"
+                plotSolution(data.w, solution.h, data.n, solution.x, solution.y, data.dimensions[0], data.dimensions[1], elapsedTime, fileNmae)
 
 if __name__ == '__main__':
     main()
