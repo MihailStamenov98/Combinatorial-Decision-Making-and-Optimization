@@ -4,7 +4,7 @@ from time import time
 import sys
 import subprocess
 from create_dzns import createDZN
-from my_types import BlocksDistribution, Constants, Solution
+from my_types import Solution
 from argument_parser import parsArguments
 cur_path = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(
@@ -12,17 +12,16 @@ PROJECT_ROOT = os.path.abspath(os.path.join(
     os.pardir)
 )
 sys.path.append(PROJECT_ROOT)
-from utils import writeFile, WriteData, readFile, Folder, plotSolution
+from utils import writeFile, WriteData, readFile, Folder, plotSolution, graph
 
 def decodeMinizincOutput(result, i) -> Solution:
     time = 300000
     h = None
     arr = result.splitlines()
-    print(result)
     while arr[0].startswith('%') or arr[0].startswith('WARNING'):
         if "time=" in arr[0]:
             time = float(arr[0].split("=")[-1])
-            print(f"Solution found in time {time:.3f}")
+            print(f"Solution found for instance {i} in time {time:.3f}")
         arr.pop(0)
 
     if arr[0] == "=====UNKNOWN=====":
@@ -44,14 +43,16 @@ def decodeMinizincOutput(result, i) -> Solution:
 def main():
     args = parsArguments()
     filesData = [None] *  40
+    times = []
     for strategy in args.solverStrategy:
+        times.append([])
         for instance in args.instances:
             data = None
-            if filesData[instance] is None:
+            if filesData[instance-1] is None:
                data = readFile(instance)
-               filesData[instance] = data
+               filesData[instance-1] = data
             else: 
-              data = filesData[instance]
+              data = filesData[instance-1]
             createDZN(instance, args.solverStrategy[0].restart, args.solverStrategy[0].chooseVal, data)
             command = f'minizinc -s --time-limit {300000} --solver chuffed -f model.mzn "./instances_dzn/ins-{instance}.dzn"'
             result = subprocess.getoutput(command)
@@ -61,9 +62,14 @@ def main():
             writeData = WriteData(data.n, data.w, solution.h,
                           data.dimensions, coordinates, elapsedTime, solution.rotated)
             fileName = writeFile(instance, Folder.CP.value, writeData)
+            times[-1].append(solution.time)
             if args.draw:
                 fileNmae = ("solution-rotation/" if args.rotated else "solution/" ) + fileName + ".png"
                 plotSolution(data.w, solution.h, data.n, solution.x, solution.y, data.dimensions[0], data.dimensions[1], elapsedTime, fileNmae)
 
+    if args.graph:
+            graph(times)    
 if __name__ == '__main__':
     main()
+
+# %%

@@ -2,16 +2,15 @@
     "openFiles": [
         "model.mzn",
         "model_rotation.mzn",
-        "Data1.dzn"
+        "instances_dzn/ins-24.dzn"
     ],
     "openTab": 0,
     "projectFiles": [
-        "Data1 rotated.dzn",
-        "Data1.dzn",
+        "instances_dzn/ins-24.dzn",
         "model.mzn",
         "model_rotation.mzn"
     ],
-    "selectedBuiltinConfigId": "org.gecode.gecode",
-    "selectedBuiltinConfigVersion": "6.3.0",
+    "selectedBuiltinConfigId": "org.chuffed.chuffed",
+    "selectedBuiltinConfigVersion": "0.10.4",
     "version": 106
 }

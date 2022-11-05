@@ -10,14 +10,17 @@ set of int: BLOCKS = 1..n_blocks;
 array[BLOCKS] of int: widths;
 array[BLOCKS] of int: heights;
 
+int: area_min = sum([heights[i] * widths[i] | i in BLOCKS]);
+var 0..area_min: white_space = chip_width*chip_height - area_min;
+int: min_height = max(max(heights), floor(area_min/chip_width));
+
 array[BLOCKS] of var 0..chip_width: blocks_x;
 array[BLOCKS] of var 0..chip_max_height: blocks_y;
 
 constraint max([blocks_x[i] + widths[i] | i in BLOCKS]) <= chip_width;
 
 constraint cumulative(blocks_y, heights, widths, chip_width);
-var int: chip_height = max(b in BLOCKS)(blocks_y[b] + heights[b]);
-constraint chip_height<=chip_max_height;
+var min_height..chip_max_height: chip_height = max(b in BLOCKS)(blocks_y[b] + heights[b]);
 constraint cumulative(blocks_x, widths, heights, chip_height);
 % relationships among circuits
 constraint diffn(blocks_x, blocks_y, widths, heights);
@@ -38,7 +41,6 @@ constraint lex_lesseq(flat_board, [ if i <= n_blocks
                                     then abs(chip_height - blocks_y[i-n_blocks] - heights[i-n_blocks]) 
                                     else abs(chip_width - blocks_x[i] - widths[i])
                                     endif | i in 1..2*n_blocks]);
-
 
 /*ann: search_ann_x = if heuristic == 1 then
   int_search(blocks_x, input_order, indomain_min)
@@ -84,13 +86,13 @@ else
 endif;
 */
 %solve minimize chip_height;
-ann: search_ann_x = int_search(blocks_x, dom_w_deg, indomain_min);
+ann: search_ann_x = int_search(blocks_x, first_fail, indomain_min);
 ann: search_ann_y = int_search(blocks_y, first_fail, indomain_min);
 
 ann: restart_ann = restart_luby(100);
 solve :: search_ann_x
       :: search_ann_y
-      :: restart_ann minimize chip_height;
+      :: restart_ann minimize area_min*chip_height+white_space;
       
 output ["\(blocks_x)\n",
         "\(blocks_y)\n",
