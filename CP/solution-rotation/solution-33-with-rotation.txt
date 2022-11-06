@@ -1,0 +1,23 @@
+40 40
+20
+3 3 3 17 False
+3 4 3 0 False
+3 5 6 0 True
+3 6 3 11 False
+3 7 3 4 False
+3 8 3 20 True
+3 9 37 31 False
+3 10 37 21 False
+3 12 3 23 False
+3 16 37 5 False
+3 40 0 0 False
+4 4 11 14 False
+4 14 11 0 False
+4 22 11 18 False
+5 3 37 0 True
+5 4 6 3 False
+5 8 3 35 True
+5 12 6 23 False
+5 13 6 7 False
+22 40 15 0 False
+23438.0 ms

@@ -23,8 +23,8 @@ class Constants(Enum):
 
 
 class ModelType(Enum):
-    normal = "\\model.mzn"
-    rotated = "\\model_rotated.mzn"
+    normal = "model.mzn"
+    rotated = "model_rotation.mzn"
 
 
 class ChooseVariableMethods(Enum):

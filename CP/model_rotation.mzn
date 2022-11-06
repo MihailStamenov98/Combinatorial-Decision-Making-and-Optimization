@@ -4,65 +4,60 @@ int: chip_width;
 int: chip_max_height; % upper bound for y coordinates
 int: n_blocks;   % Number of blocks
 set of int: BLOCKS = 1..n_blocks;
-array[BLOCKS, 1..2] of int: dimensions;
+array[BLOCKS] of int: widths;
+array[BLOCKS] of int: heights;
 array[BLOCKS] of var bool: rotated; % variables to know if pice is rotated
+int: min_size = min(min(widths), min(heights));
+int: max_size = max(max(widths), max(heights));
 
-array[BLOCKS] of var int: widths; % we do not know if the pice will be rotated
-array[BLOCKS] of var int: heights; % we do not know if the pice will be rotated
-array[BLOCKS] of var 0..chip_width: blocks_x;
-array[BLOCKS] of var 0..chip_max_height: blocks_y;
+array[BLOCKS] of int: order = reverse(arg_sort([max(heights[i], widths[i]) | i in BLOCKS]));
+%array[int] of int: order = arg_sort([-widths[i]*heights[i] | i in BLOCKS]); 
+int: area_min = sum([heights[i] * widths[i] | i in BLOCKS]);
+var 0..area_min: white_space = chip_width*chip_height - area_min;
+int: min_height = max(max_size, floor(area_min/chip_width));
 
-constraint forall(i in BLOCKS)( widths[i] = if rotated[i] then dimensions[i,2] else dimensions[i,1] endif);
-constraint forall(i in BLOCKS)( heights[i] = if rotated[i] then dimensions[i,1] else dimensions[i,2] endif);
-constraint cumulative(blocks_y, heights, widths, chip_width);
-var int: chip_height = max(b in BLOCKS)(blocks_y[b] + heights[b]);
-constraint cumulative(blocks_x, widths, heights, chip_height);
+array[BLOCKS] of var min_size..max_size: rotation_widths;
+array[BLOCKS] of var min_size..max_size: rotation_heights;
+array[BLOCKS] of var 0..chip_width-min_size: blocks_x;
+array[BLOCKS] of var 0..chip_max_height-min_size: blocks_y;
 
+constraint max([blocks_x[i] + rotation_widths[i] | i in BLOCKS]) <= chip_width;
+constraint max([blocks_y[i] + rotation_heights[i] | i in BLOCKS]) <= chip_height;
 
-ann: search_ann_x = 
-%if heuristic == 1 then
-%  int_search(p_x, input_order, indomain_min)
-%elseif heuristic == 2 then
-%  int_search(p_x, first_fail, indomain_min)
-%elseif heuristic == 3 then
-%  int_search(p_x, dom_w_deg, indomain_min)
-%elseif heuristic == 4 then
-%  int_search(p_x, input_order, indomain_random)
-%elseif heuristic == 5 then
-%  int_search(p_x, first_fail, indomain_random)
-%else
-%  int_search(p_x, dom_w_deg, indomain_random)
-%endif;
+constraint forall(i in BLOCKS)(if rotated[i] then rotation_widths[i] = heights[i] /\ rotation_heights[i] = widths[i] else rotation_widths[i] = widths[i] /\ rotation_heights[i] = heights[i] endif);
 
-ann: search_ann_y = 
-if heuristic == 1 then
-  int_search(blocks_y, input_order, indomain_min)
-elseif heuristic == 2 then
-  int_search(blocks_y, first_fail, indomain_min)
-elseif heuristic == 3 then
-  int_search(blocks_y, dom_w_deg, indomain_min)
-elseif heuristic == 4 then
-  int_search(blocks_y, input_order, indomain_random)
-elseif heuristic == 5 then
-  int_search(blocks_y, first_fail, indomain_random)
-else
-  int_search(blocks_y, dom_w_deg, indomain_random)
-endif;
+constraint cumulative(blocks_y, rotation_heights, rotation_widths, chip_width);
+var min_height..chip_max_height: chip_height = max(b in BLOCKS)(blocks_y[b] + rotation_heights[b]);
+constraint cumulative(blocks_x, rotation_widths, rotation_heights, chip_height);
+constraint diffn(blocks_x, blocks_y, rotation_widths, rotation_heights);
 
-ann: restart_ann =
-if restart == 1 then
-  restart_constant(100)
-elseif restart == 2 then
-  restart_linear(100)
-elseif restart == 3 then
-  restart_geometric(1.5,100)
-elseif restart == 4 then
-  restart_luby(100)
-else
-  restart_none
-endif;
+array[1..2*n_blocks] of var int: flat_board;
 
-solve :: search_ann_x
-      :: search_ann_y
-      :: restart_ann
-         minimize chip_height;
+constraint forall (i in BLOCKS) ( flat_board[i] = blocks_x[i] /\ flat_board[n_blocks+i] = blocks_y[i] );
+% symmetry breaking (horizontal flip, vertical flip and 180° rotation)
+constraint forall(i in BLOCKS)( if widths[i] == heights[i] then rotated[i] = false endif);
+constraint lex_lesseq(flat_board, [ if i <= n_blocks 
+                                    then abs(chip_width - blocks_x[i] - rotation_widths[i]) 
+                                    else flat_board[i] 
+                                    endif | i in 1..2*n_blocks])
+        /\ lex_lesseq(flat_board, [ if i > n_blocks 
+                                    then abs(chip_height - blocks_y[i-n_blocks] - rotation_heights[i-n_blocks]) 
+                                    else flat_board[i]
+                                    endif | i in 1..2*n_blocks])
+        /\ lex_lesseq(flat_board, [ if i > n_blocks 
+                                    then abs(chip_height - blocks_y[i-n_blocks] - rotation_heights[i-n_blocks]) 
+                                    else abs(chip_width - blocks_x[i] - rotation_widths[i])
+                                    endif | i in 1..2*n_blocks]);
+
+% full_bottom
+array[BLOCKS] of var int: y_0 = [if blocks_y[i] = 0 then rotation_widths[i] else 0 endif | i in BLOCKS];
+constraint sum(y_0) == chip_width;
+
+solve :: seq_search(int_search([blocks_x[i] | i in order], input_order, indomain_min, complete), int_search([blocks_y[i] | i in order], input_order, indomain_min, complete)]) minimize area_min*chip_height+white_space;
+output ["\(blocks_x)\n",
+        "\(blocks_y)\n",
+        "\(chip_height)\n",
+        "\(rotated)\n",
+        "\([rotation_widths[i] + blocks_x[i] | i in BLOCKS])\n",
+        "\([rotation_heights[i] + blocks_y[i] | i in BLOCKS])\n",
+        ];

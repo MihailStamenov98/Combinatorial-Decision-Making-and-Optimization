@@ -3,7 +3,7 @@ import plotly.express as px
 import random
 from itertools import cycle
  
-def plotSolution(w, h, n, xs, ys, widths, heights, name, filename):
+def plotSolution(w, h, n, xs, ys, widths, heights, name, filename, rotations = None):
     palette = cycle(px.colors.qualitative.Plotly)
 
     r = random.Random(42)
@@ -12,7 +12,11 @@ def plotSolution(w, h, n, xs, ys, widths, heights, name, filename):
 
     for i in range(n):
         x, y = xs[i], ys[i]
-        width, height = widths[i], heights[i]
+        if rotations is None:
+            width, height = widths[i], heights[i]
+        else:
+            width = widths[i] if not(rotations[i]) else heights[i]
+            height = widths[i] if rotations[i] else heights[i]
         fig.add_shape(type="rect",
                       x0=x, y0=y, x1=x + width, y1=y + height,
                       line=dict(

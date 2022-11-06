@@ -14,7 +14,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(
 sys.path.append(PROJECT_ROOT)
 from utils import writeFile, WriteData, readFile, Folder, plotSolution, graph
 
-def decodeMinizincOutput(result, i) -> Solution:
+def decodeMinizincOutput(result, i, rotated: bool) -> Solution:
     time = 300000
     h = None
     arr = result.splitlines()
@@ -33,11 +33,11 @@ def decodeMinizincOutput(result, i) -> Solution:
         y = arr[1].replace('[', '').replace(']', '')
         y = [int(s) for s in y.split(',')]
         h = int(arr[2])
-        rotated = None
-        if len(arr) == 4:
-            rotated = arr[3].replace('[', '').replace(']', '')
-            rotated = [bool(s) for s in rotated.split(',')]
-        return Solution(time, x,y,h, rotated)
+        rotations = None
+        if rotated:
+            rotations = arr[3].replace('[', '').replace(']', '')
+            rotations = ['true' in s for s in rotations.split(',')]
+        return Solution(time, x,y,h, rotations)
         
 
 def main():
@@ -54,9 +54,9 @@ def main():
             else: 
               data = filesData[instance-1]
             createDZN(instance, args.solverStrategy[0].restart, args.solverStrategy[0].chooseVal, data)
-            command = f'minizinc -s --time-limit {300000} --solver chuffed -f model.mzn "./instances_dzn/ins-{instance}.dzn"'
+            command = f'minizinc -s --time-limit {300000} --solver chuffed -f {args.modelToUse} "./instances_dzn/ins-{instance}.dzn"'
             result = subprocess.getoutput(command)
-            solution = decodeMinizincOutput(result, instance)
+            solution = decodeMinizincOutput(result, instance, args.rotated)
             coordinates = list(zip(solution.x, solution.y))
             elapsedTime = f'{solution.time * 1000:.1f} ms'
             writeData = WriteData(data.n, data.w, solution.h,
@@ -65,7 +65,7 @@ def main():
             times[-1].append(solution.time)
             if args.draw:
                 fileNmae = ("solution-rotation/" if args.rotated else "solution/" ) + fileName + ".png"
-                plotSolution(data.w, solution.h, data.n, solution.x, solution.y, data.dimensions[0], data.dimensions[1], elapsedTime, fileNmae)
+                plotSolution(data.w, solution.h, data.n, solution.x, solution.y, data.dimensions[0], data.dimensions[1], elapsedTime, fileNmae, solution.rotated)
 
     if args.graph:
             graph(times)    

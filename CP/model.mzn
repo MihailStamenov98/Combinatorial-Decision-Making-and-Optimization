@@ -1,8 +1,5 @@
 include "globals.mzn";
 
-/*int: restart;
-int: changeVal;
-*/
 int: chip_width;
 int: chip_max_height;
 int: n_blocks;   % Number of blocks
@@ -10,14 +7,18 @@ set of int: BLOCKS = 1..n_blocks;
 array[BLOCKS] of int: widths;
 array[BLOCKS] of int: heights;
 
+array[int] of int: order = arg_sort([-widths[i]*heights[i] | i in BLOCKS]); 
+
 int: area_min = sum([heights[i] * widths[i] | i in BLOCKS]);
 var 0..area_min: white_space = chip_width*chip_height - area_min;
 int: min_height = max(max(heights), floor(area_min/chip_width));
 
-array[BLOCKS] of var 0..chip_width: blocks_x;
-array[BLOCKS] of var 0..chip_max_height: blocks_y;
+array[BLOCKS] of var 0..chip_width-min(widths): blocks_x;
+array[BLOCKS] of var 0..chip_max_height-min(heights): blocks_y;
 
 constraint max([blocks_x[i] + widths[i] | i in BLOCKS]) <= chip_width;
+constraint max([blocks_y[i] + heights[i] | i in BLOCKS]) <= chip_height;
+
 
 constraint cumulative(blocks_y, heights, widths, chip_width);
 var min_height..chip_max_height: chip_height = max(b in BLOCKS)(blocks_y[b] + heights[b]);
@@ -42,58 +43,22 @@ constraint lex_lesseq(flat_board, [ if i <= n_blocks
                                     else abs(chip_width - blocks_x[i] - widths[i])
                                     endif | i in 1..2*n_blocks]);
 
-/*ann: search_ann_x = if heuristic == 1 then
-  int_search(blocks_x, input_order, indomain_min)
-elseif heuristic == 2 then
-  int_search(blocks_x, first_fail, indomain_min)
-elseif heuristic == 3 then
-  int_search(blocks_x, dom_w_deg, indomain_min)
-elseif heuristic == 3 then
-  int_search(blocks_x, smallest, indomain_min)
-elseif heuristic == 4 then
-  int_search(blocks_x, input_order, indomain_random)
-elseif heuristic == 5 then
-  int_search(blocks_x, first_fail, indomain_random)
-else
-  int_search(blocks_x, dom_w_deg, indomain_random)
-endif;
+% full_bottom
+array[BLOCKS] of var int: y_0 = [if blocks_y[i] = 0 then widths[i] else 0 endif | i in BLOCKS];
+constraint sum(y_0) == chip_width;                                    
 
-ann: search_ann_y = if heuristic == 1 then
-  int_search(blocks_y, input_order, indomain_min)
-elseif heuristic == 2 then
-  int_search(blocks_y, first_fail, indomain_min)
-elseif heuristic == 3 then
-  int_search(blocks_y, dom_w_deg, indomain_min)
-elseif heuristic == 4 then
-  int_search(blocks_y, input_order, indomain_random)
-elseif heuristic == 5 then
-  int_search(blocks_y, first_fail, indomain_random)
-else
-  int_search(blocks_y, dom_w_deg, indomain_random)
-endif;
-
-ann: restart_ann =
-if restart == 1 then
-  restart_constant(100)
-elseif restart == 2 then
-  restart_linear(100)
-elseif restart == 3 then
-  restart_geometric(1.5,100)
-elseif restart == 4 then
-  restart_luby(100)
-else
-  restart_none
-endif;
-*/
-%solve minimize chip_height;
 ann: search_ann_x = int_search(blocks_x, first_fail, indomain_min);
 ann: search_ann_y = int_search(blocks_y, first_fail, indomain_min);
 
 ann: restart_ann = restart_luby(100);
+
+solve :: seq_search([int_search([blocks_x[i] | i in order], input_order, indomain_min, complete), int_search([blocks_y[i] | i in order], input_order, indomain_min, complete)]) minimize area_min*chip_height+white_space;
+
+/*
 solve :: search_ann_x
       :: search_ann_y
       :: restart_ann minimize area_min*chip_height+white_space;
-      
+      */
 output ["\(blocks_x)\n",
         "\(blocks_y)\n",
         "\(chip_height)\n",

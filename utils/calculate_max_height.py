@@ -3,6 +3,6 @@ def computeMaxHeight(dimensions, w):
     maxX = max(dimensions[0])
     maxY = max(dimensions[1])
     numberOfBlocksOnLine = w // maxX
-    maxHeight = -(sumHeights // -numberOfBlocksOnLine)
+    maxHeight = sumHeights // numberOfBlocksOnLine
     maxHeight = maxY if maxHeight < maxY else maxHeight
     return maxHeight

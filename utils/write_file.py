@@ -19,7 +19,7 @@ class Folder(Enum):
 def writeFile(i, folder: Folder, data: WriteData) -> str:
     cur_path = os.path.dirname(__file__)
     solutionFolder = 'solution-rotation' if data.rotations is not None else 'solution'
-    fileName = f'solution-{i}' if data.rotations is None else f'solution-with-rotation-{i}'
+    fileName = f'solution-{i}' if data.rotations is None else f'solution-{i}-with-rotation'
     rel_path = f'../{folder}/{solutionFolder}/{fileName}.txt'
     with open(cur_path+'\\'+rel_path, 'w') as f:
         f.write(f'{data.w} {data.h}\n')
