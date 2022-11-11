@@ -2,10 +2,12 @@
     "openFiles": [
         "model.mzn",
         "model_rotation.mzn",
-        "instances_dzn/ins-24.dzn"
+        "instances_dzn/ins-24.dzn",
+        "instances_dzn/ins-0.dzn"
     ],
-    "openTab": 0,
+    "openTab": 3,
     "projectFiles": [
+        "instances_dzn/ins-0.dzn",
         "instances_dzn/ins-24.dzn",
         "model.mzn",
         "model_rotation.mzn"

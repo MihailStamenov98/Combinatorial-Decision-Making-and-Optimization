@@ -1,7 +1,11 @@
 include "globals.mzn";
 
 int: chip_width;
-int: chip_max_height; % upper bound for y coordinates
+int: min_blocks_on_row = (chip_width div max_size);
+int: chip_max_height = max_size * (if n_blocks mod min_blocks_on_row == 0 
+                                            then (n_blocks div min_blocks_on_row) 
+                                            else (n_blocks div min_blocks_on_row) + 1 
+                                            endif);
 int: n_blocks;   % Number of blocks
 set of int: BLOCKS = 1..n_blocks;
 array[BLOCKS] of int: widths;
@@ -31,9 +35,11 @@ var min_height..chip_max_height: chip_height = max(b in BLOCKS)(blocks_y[b] + ro
 constraint cumulative(blocks_x, rotation_widths, rotation_heights, chip_height);
 constraint diffn(blocks_x, blocks_y, rotation_widths, rotation_heights);
 
-array[1..2*n_blocks] of var int: flat_board;
+array[1..2*n_blocks] of var int: flat_board = [if i <= n_blocks 
+                                               then blocks_x[i] 
+                                               else blocks_y[i-n_blocks] 
+                                               endif | i in 1..2*n_blocks];
 
-constraint forall (i in BLOCKS) ( flat_board[i] = blocks_x[i] /\ flat_board[n_blocks+i] = blocks_y[i] );
 % symmetry breaking (horizontal flip, vertical flip and 180° rotation)
 constraint forall(i in BLOCKS)( if widths[i] == heights[i] then rotated[i] = false endif);
 constraint lex_lesseq(flat_board, [ if i <= n_blocks 
@@ -53,7 +59,7 @@ constraint lex_lesseq(flat_board, [ if i <= n_blocks
 array[BLOCKS] of var int: y_0 = [if blocks_y[i] = 0 then rotation_widths[i] else 0 endif | i in BLOCKS];
 constraint sum(y_0) == chip_width;
 
-solve :: seq_search(int_search([blocks_x[i] | i in order], input_order, indomain_min, complete), int_search([blocks_y[i] | i in order], input_order, indomain_min, complete)]) minimize area_min*chip_height+white_space;
+solve :: seq_search([int_search([blocks_x[i] | i in order], input_order, indomain_min, complete), int_search([blocks_y[i] | i in order], input_order, indomain_min, complete)]) minimize area_min*chip_height+white_space;
 output ["\(blocks_x)\n",
         "\(blocks_y)\n",
         "\(chip_height)\n",

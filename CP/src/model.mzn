@@ -32,12 +32,12 @@ constraint cumulative(blocks_x, widths, heights, chip_height);
 % relationships among circuits
 constraint diffn(blocks_x, blocks_y, widths, heights);
 
-array[1..2*n_blocks] of var int: flat_board /*= [if i <= n_blocks 
+array[1..2*n_blocks] of var int: flat_board = [if i <= n_blocks 
                                                then blocks_x[i] 
-                                               else blocks_y[(i-n_blocks)] 
-                                               endif | i in 1..2*n_blocks];*/
+                                               else blocks_y[i-n_blocks] 
+                                               endif | i in 1..2*n_blocks];
 
-constraint forall (i in BLOCKS) ( flat_board[i] = blocks_x[i] /\ flat_board[n_blocks+i] = blocks_y[i] );
+%constraint forall (i in BLOCKS) ( flat_board[i] = blocks_x[i] /\ flat_board[n_blocks+i] = blocks_y[i] );
 % symmetry breaking (horizontal flip, vertical flip and 180° rotation)
 constraint lex_lesseq(flat_board, [ if i <= n_blocks 
                                     then abs(chip_width - blocks_x[i] - widths[i]) 

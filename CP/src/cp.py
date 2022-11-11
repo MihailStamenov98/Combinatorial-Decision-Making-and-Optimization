@@ -9,6 +9,7 @@ from argument_parser import parsArguments
 cur_path = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(
     cur_path,
+    os.pardir,
     os.pardir)
 )
 sys.path.append(PROJECT_ROOT)
@@ -26,6 +27,10 @@ def decodeMinizincOutput(result, i, rotated: bool) -> Solution:
 
     if arr[0] == "=====UNKNOWN=====":
         print(f"Could not find a result for instance {i}")
+        return None
+    if arr[0] == "=====UNSATISFIABLE=====":
+        print(f"There is no solution for instance {i}")
+        return None
 
     else:       
         x = arr[0].replace('[', '').replace(']', '')
@@ -54,9 +59,11 @@ def main():
             else: 
               data = filesData[instance-1]
             createDZN(instance, args.solverStrategy[0].restart, args.solverStrategy[0].chooseVal, data)
-            command = f'minizinc -s --time-limit {300000} --solver chuffed -f {args.modelToUse} "./instances_dzn/ins-{instance}.dzn"'
+            command = f'minizinc -s --time-limit {300000} --solver chuffed -f {args.modelToUse} "../instances_dzn/ins-{instance}.dzn"'
             result = subprocess.getoutput(command)
             solution = decodeMinizincOutput(result, instance, args.rotated)
+            if solution is None:
+                continue
             coordinates = list(zip(solution.x, solution.y))
             elapsedTime = f'{solution.time * 1000:.1f} ms'
             writeData = WriteData(data.n, data.w, solution.h,
@@ -71,5 +78,3 @@ def main():
             graph(times)    
 if __name__ == '__main__':
     main()
-
-# %%

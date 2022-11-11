@@ -1,0 +1,4 @@
+n_blocks=3;
+chip_width=10;
+widths=[5, 5, 5];
+heights=[10, 9, 9];
