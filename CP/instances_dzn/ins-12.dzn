@@ -2,4 +2,5 @@ n_blocks=14;
 chip_width=19;
 widths=[3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4];
 heights=[3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 19, 5, 6, 8];
-chip_max_height=28
+search=5;
+restart=2;

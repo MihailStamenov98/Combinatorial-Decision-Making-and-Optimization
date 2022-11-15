@@ -1,7 +1,11 @@
 include "globals.mzn";
 
+
+int: search;
+int: restart;
+
 int: chip_width;
-int: min_blocks_on_row = (chip_width div max_size);
+int: min_blocks_on_row = if (chip_width div max_size)>0 then (chip_width div max_size) else 1 endif;
 int: chip_max_height = max_size * (if n_blocks mod min_blocks_on_row == 0 
                                             then (n_blocks div min_blocks_on_row) 
                                             else (n_blocks div min_blocks_on_row) + 1 
@@ -16,9 +20,9 @@ int: max_size = max(max(widths), max(heights));
 
 array[BLOCKS] of int: order = reverse(arg_sort([max(heights[i], widths[i]) | i in BLOCKS]));
 %array[int] of int: order = arg_sort([-widths[i]*heights[i] | i in BLOCKS]); 
-int: area_min = sum([heights[i] * widths[i] | i in BLOCKS]);
-var 0..area_min: white_space = chip_width*chip_height - area_min;
-int: min_height = max(max_size, floor(area_min/chip_width));
+int: area_of_blocks = sum([heights[i] * widths[i] | i in BLOCKS]);
+var 0..area_of_blocks: empty_space = chip_width*chip_height - area_of_blocks;
+int: min_height = max(max_size, floor(area_of_blocks/chip_width));
 
 array[BLOCKS] of var min_size..max_size: rotation_widths;
 array[BLOCKS] of var min_size..max_size: rotation_heights;
@@ -59,11 +63,43 @@ constraint lex_lesseq(flat_board, [ if i <= n_blocks
 array[BLOCKS] of var int: y_0 = [if blocks_y[i] = 0 then rotation_widths[i] else 0 endif | i in BLOCKS];
 constraint sum(y_0) == chip_width;
 
-solve :: seq_search([int_search([blocks_x[i] | i in order], input_order, indomain_min, complete), int_search([blocks_y[i] | i in order], input_order, indomain_min, complete)]) minimize area_min*chip_height+white_space;
+
+ann: search_ann_x = if search == 1 then
+      int_search(blocks_x, input_order, indomain_min)
+elseif search == 2 then
+      int_search(blocks_x, first_fail, indomain_min)
+elseif search == 3 then
+      int_search(blocks_x, first_fail, indomain_random)
+elseif search == 4 then
+      int_search(blocks_x, dom_w_deg, indomain_random)
+else
+      int_search([blocks_x[i] | i in order], input_order, indomain_min, complete)
+endif;
+
+ann: search_ann_y = if search == 1 then
+      int_search(blocks_y, input_order, indomain_min)
+elseif search == 2 then
+      int_search(blocks_y, first_fail, indomain_min)
+elseif search == 3 then
+      int_search(blocks_y, first_fail, indomain_random)
+elseif search == 4 then
+      int_search(blocks_y, dom_w_deg, indomain_random)
+else
+      int_search([blocks_y[i] | i in order], input_order, indomain_min, complete)
+endif;
+
+ann: restart_ann = if  restart == 1 then
+      restart_linear(100)
+elseif restart == 2 then
+      restart_luby(100)
+else
+      restart_none
+endif;
+
+solve :: seq_search([search_ann_x, search_ann_y, restart_ann]) minimize area_of_blocks*chip_height+empty_space;
+
 output ["\(blocks_x)\n",
         "\(blocks_y)\n",
         "\(chip_height)\n",
         "\(rotated)\n",
-        "\([rotation_widths[i] + blocks_x[i] | i in BLOCKS])\n",
-        "\([rotation_heights[i] + blocks_y[i] | i in BLOCKS])\n",
         ];

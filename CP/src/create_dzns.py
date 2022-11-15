@@ -13,7 +13,7 @@ from utils import ReadData, readFile
 
 
 
-def createDZN(i:int, restart, changeVal, data: ReadData = None ):
+def createDZN(i:int, search, restart, data: ReadData = None):
     outfile = os.path.join(
     cur_path,
     "instances_dzn",
@@ -25,5 +25,6 @@ def createDZN(i:int, restart, changeVal, data: ReadData = None ):
         out.write(f"chip_width={data.w};\n")
         out.write(f"widths={data.dimensions[0]};\n")
         out.write(f"heights={data.dimensions[1]};\n")
-        out.write(f"")
+        out.write(f"search={search};\n")
+        out.write(f"restart={restart};\n")
     

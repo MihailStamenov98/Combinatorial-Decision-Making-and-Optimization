@@ -1,39 +1,34 @@
 import argparse
 from tkinter import SEL_FIRST
-from my_types import ChooseVariableMethods, ChooseValueForVariableMethods, RestartStyles, ModelType
-
-
-class SolverStrategy:
-    def __init__(self, chooseVar, chooseVal, restart):
-        self.chooseVar = chooseVar
-        self.chooseVal = chooseVal
-        self.restart = restart
-
+from my_types import ModelType
 
 class ReturnType:
     def __init__(self, args):
-        solveStrategies = []
-        for var in ChooseVariableMethods:
-            for val in ChooseValueForVariableMethods:
-                for r in RestartStyles:
-                    solveStrategies.append(SolverStrategy(var, val, r))
-        if args.restart:
-            solveStrategies = [
-                strategy for strategy in solveStrategies if strategy.restart == args.restart]
-        if args.chooseVar:
-            solveStrategies = [
-                strategy for strategy in solveStrategies if strategy.chooseVar == args.chooseVar]
-        if args.chooseVal:
-            solveStrategies = [strategy for strategy in solveStrategies if strategy.chooseVal == args.chooseVal]
+        solverStrategyes = []
+        if args.gecode:
+            solverStrategyes = [(1,3), (2,3), (3,1), (4,1), (4,2), (5,3)]
+        else:
+            solverStrategyes = [(1,3), (2,2), (2,1), (5,3), (5, 2)]
 
-        self.solverStrategy = solveStrategies if args.all else [SolverStrategy(
-            ChooseVariableMethods.dom_w_deg, ChooseValueForVariableMethods.indomain_random, RestartStyles.luby)]
+        filteredSolverStrategyes = []
+        if args.search is not None and args.restart is not None:
+            filteredSolverStrategyes = [(args.search, args.restart)]
+        elif args.restart is not None:
+            filteredSolverStrategyes = list(filter(lambda x: (x[1] == args.restart), solverStrategyes))
+        elif args.search is not None:
+            filteredSolverStrategyes = list(filter(lambda x: (x[0] == args.search), solverStrategyes))
 
+        if args.all:
+            self.solverStrategyes = solverStrategyes
+        elif filteredSolverStrategyes != []:
+            self.solverStrategyes = filteredSolverStrategyes
+        else:
+            self.solverStrategyes = [(5,2)]
+        self.solver = "gecode" if args.gecode else "chuffed"
         self.modelToUse = ModelType.rotated.value if args.rotation else ModelType.normal.value
         self.rotated = args.rotation
-        self.graph = args.graph
         self.draw = args.draw
-        self.instances = [args.instance] if args.instance is not None else range(0, 41)
+        self.instances = [args.instance] if args.instance is not None else range(35, 41)
 
 
 def parsArguments():
@@ -41,13 +36,17 @@ def parsArguments():
     parser.add_argument("-i", "--instance", help="Instance on which to run the model, default is all", type=int)
     parser.add_argument("-r", "--rotation", help="Flag to decide whether it is possible use rotated circuits, default is not rotated", action='store_true')
     parser.add_argument("-d", "--draw", help="Flag to decide whether to draw a the solution, default is false", action='store_true')
-    parser.add_argument("-g", "--graph", help="Flag to decide whether to draw a graph of the times for execution", action='store_true')
-    parser.add_argument("-res", "--restart", help="Restart type (1-constant, 2-linear, 3-geometric, 4-luby, 5-none), default 4-luby",
-                        required=False, type=int)
-    parser.add_argument("-var", "--chooseVar", help="Variable choice (1 - input_order, 2 - first_fail, 3 - occurrence, 4 - dom_w_deg), default is dom_w_deg",
-                        required=False, type=int)
-    parser.add_argument("-val", "--chooseVal", help="Ways to constrain a variable are: (1 - indomain_min, 2 - indomain_random) ",
-                        required=False, type=int)
+    parser.add_argument("-g", "--gecode", help="Flag to use Gecoden", action='store_true')
+    parser.add_argument("-s", "--search", help = '''Search type (1 input\_order indomain\_min
+                                                                2 first\_fail indomain\_min
+                                                                3 first\_fail indomain\_random 
+                                                                4 dom\_w\_deg indomain\_random
+                                                                5 (sorted by area) indomain\_order), 
+                                                                default 5''',required=False, type=int)
+    parser.add_argument("-res", "--restart", help = '''Restart type (1 restart_linear(100)
+                                                                2 restart_luby(100)
+                                                                3 restart_none 
+                                                                default 3''',required=False, type=int)
     parser.add_argument("-all", "--all", help="Flag to decide whether to run all searches",
                         required=False, action='store_true')
     args = parser.parse_args()
