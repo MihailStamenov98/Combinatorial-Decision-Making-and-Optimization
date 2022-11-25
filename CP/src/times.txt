@@ -1,7 +1,41 @@
 model number 1
-instance-1 - 1740.0 ms
-instance-2 - 1840.0 ms
-instance-3 - 300290.0 ms
-instance-4 - 230410.0 ms
-instance-5 - 300310.0 ms
-instance-6 - 300570.0 ms
+instance-1 -  280       
+instance-2 -  290       
+instance-3 -  290       
+instance-4 -  310       
+instance-5 -  320       
+instance-6 -  310       
+instance-7 -  330       
+instance-8 -  370       
+instance-9 -  330       
+instance-10 - 560       
+instance-11 - 1760       
+instance-12 - 1070       
+instance-13 - 790       
+instance-14 - 900       
+instance-15 - 1160       
+instance-16 - 16660      
+instance-17 - 1840      
+instance-18 - 17950      
+instance-19 - 4930      
+instance-20 - 64860      
+instance-21 - 31130      
+instance-22 - 46100      
+instance-23 - 9830      
+instance-24 - 1100      
+instance-25 - 300330        
+instance-26 - 32390         
+instance-27 - 90560         
+instance-28 - 20720         
+instance-29 - 37140         
+instance-30 - 300270        
+instance-31 - 8880      
+instance-32 - 300150        
+instance-33 - 4210      
+instance-34 - 1800      
+instance-35 - 1770      
+instance-36 - 1880      
+instance-37 - 300290        
+instance-38 - 236140        
+instance-39 - 300330        
+instance-40 - 300640        

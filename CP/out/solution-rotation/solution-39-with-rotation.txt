@@ -1,0 +1,31 @@
+30 61
+28
+9 24 10 18 False
+9 8 0 14 True
+9 11 21 43 False
+9 17 21 26 False
+4 24 6 57 True
+4 8 22 22 True
+1 6 14 48 False
+1 5 25 0 True
+4 17 6 26 False
+3 6 0 23 False
+3 5 14 42 True
+12 5 25 1 True
+12 13 12 0 True
+14 14 0 43 False
+2 14 19 31 False
+2 2 12 13 False
+8 3 14 12 False
+8 9 22 13 False
+12 14 0 0 False
+12 2 8 14 True
+6 3 0 58 False
+6 9 15 45 False
+2 5 3 23 True
+2 13 19 18 False
+3 18 3 25 False
+3 14 0 29 False
+3 16 14 54 True
+3 12 10 15 True
+300330.0 ms

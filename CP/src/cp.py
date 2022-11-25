@@ -4,7 +4,6 @@ from time import time
 import sys
 import subprocess
 from create_dzns import createDZN
-from my_types import Solution
 from argument_parser import parsArguments
 cur_path = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(
@@ -13,7 +12,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(
     os.pardir)
 )
 sys.path.append(PROJECT_ROOT)
-from utils import writeFile, WriteData, readFile, Folder, plotSolution, graph
+from utils import writeFile, WriteData, readFile, Folder, plotSolution, Solution
 
 def decodeMinizincOutput(result, i, rotated: bool) -> Solution:
     time = 300
@@ -45,10 +44,11 @@ def decodeMinizincOutput(result, i, rotated: bool) -> Solution:
             arr.pop(0)
         if '% time elapsed:' in arr[0]:
             time = float(arr[0].split(":")[1].split(" ")[1])
-            print(f"Solution found for instance {i} in time {time:.3f}")  
+            print(f"Solution found for instance {i} in time {time:.3f}")
             arr.pop(0)
-        return Solution(time, x,y,h, rotations)
-        
+        return Solution(time, x, y, h, rotations)
+
+
 def saveTimes(times):
     with open('times.txt', 'w') as f:
         model = 1
@@ -60,9 +60,10 @@ def saveTimes(times):
                 f.write(f'instance-{isinstance} - {x}\n')
                 isinstance += 1
 
+
 def main():
     args = parsArguments()
-    filesData = [None] *  40
+    filesData = [None] * 40
     times = []
     for strategy in args.solverStrategyes:
         times.append([])
@@ -70,10 +71,10 @@ def main():
         for instance in args.instances:
             data = None
             if filesData[instance-1] is None:
-               data = readFile(instance)
-               filesData[instance-1] = data
-            else: 
-              data = filesData[instance-1]
+                data = readFile(instance)
+                filesData[instance-1] = data
+            else:
+                data = filesData[instance-1]
             createDZN(instance, strategy[0], strategy[1], data)
             command = f'minizinc -s --output-time --time-limit {300000} --solver {args.solver} -f {args.modelToUse} "../instances_dzn/ins-{instance}.dzn"'
             result = subprocess.getoutput(command)
@@ -84,12 +85,16 @@ def main():
             coordinates = list(zip(solution.x, solution.y))
             elapsedTime = f'{solution.time * 1000:.1f} ms'
             writeData = WriteData(data.n, data.w, solution.h,
-                          data.dimensions, coordinates, elapsedTime, solution.rotated)
+                                  data.dimensions, coordinates, elapsedTime, solution.rotated)
             fileName = writeFile(instance, Folder.CP.value, writeData)
             times[-1].append(elapsedTime)
             if args.draw:
-                fileNmae = ("../solution-rotation/" if args.rotated else "../solution/" ) + fileName + ".png"
-                plotSolution(data.w, solution.h, data.n, solution.x, solution.y, data.dimensions[0], data.dimensions[1], elapsedTime, fileNmae, solution.rotated)
-    saveTimes(times)    
+                fileNmae = (
+                    "../out/solution-rotation/" if args.rotated else "../out/solution/") + fileName + ".png"
+                plotSolution(data.w, solution.h, data.n, solution.x, solution.y,
+                             data.dimensions[0], data.dimensions[1], elapsedTime, fileNmae, solution.rotated)
+    saveTimes(times)
+
+
 if __name__ == '__main__':
     main()
