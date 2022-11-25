@@ -1,7 +1,9 @@
 {
-    "editor.formatOnSave": false,
-    "editor.formatOnPaste": false,
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
     "cSpell.words": [
         "minizinc"
-    ]
+    ],
+    "editor.defaultFormatter": "ms-python.autopep8",
+    "autopep8.args": ["--ignore","E402"]
 }
