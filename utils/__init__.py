@@ -4,4 +4,6 @@ from utils.write_file import writeFile
 from utils.write_file import WriteData
 from utils.write_file import Folder
 from utils.plot_solution import plotSolution
-from utils.graph import graph
+from utils.bounds_calculator import chipMaxHeight
+from utils.bounds_calculator import chipMinHeight
+from utils.common_types import Solution
