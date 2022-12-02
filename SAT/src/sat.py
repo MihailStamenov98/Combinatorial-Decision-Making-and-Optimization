@@ -5,6 +5,7 @@ from z3 import *
 from model import ResultModel
 from argument_parser import parsArguments
 from model import solveInstance
+from model_rotated import solveInstanceRotated
 cur_path = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(
     cur_path,
@@ -23,7 +24,7 @@ def saveTimes(times):
             model += 1
             isinstance = 1
             for x in time:
-                f.write(f'instance-{isinstance} - {x}\n')
+                f.write(f'{x}\n')
                 isinstance += 1
 
 
@@ -36,9 +37,14 @@ def main():
         print(f'encoding = {encoding}')
         for instance in args.instances:
             data = readFile(instance)
+            result = None
             maxHeight = chipMaxHeight(data, args.rotated)
             minHeight = chipMinHeight(data)
-            result = solveInstance(data, encoding, minHeight, maxHeight)
+            if args.rotated:
+                result = solveInstanceRotated(
+                    data, encoding, minHeight, maxHeight)
+            else:
+                result = solveInstance(data, encoding, minHeight, maxHeight)
             if type(result) == Solution:
                 coordinates = list(zip(result.x, result.y))
                 elapsedTime = f'{result.time * 1000:.1f} ms'

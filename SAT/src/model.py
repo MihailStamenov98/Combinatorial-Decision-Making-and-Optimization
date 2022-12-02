@@ -1,8 +1,9 @@
-from my_utils import atLeastOne, atMostOne, exactlyOne, EncodingType, flat
+from my_utils import *
 import os
 import sys
 import time
 from z3 import *
+from local_types import ResultModel
 cur_path = os.path.dirname(__file__)
 PROJECT_ROOT = os.path.abspath(os.path.join(
     cur_path,
@@ -13,111 +14,105 @@ sys.path.append(PROJECT_ROOT)
 from utils import ReadData, Solution
 
 
-class ResultModel:
-    def __init__(self, model, time, isUnsatisfiable, length):
-        self.model = model
-        self.time = time
-        self.isUnsatisfiable = isUnsatisfiable
-        self.length = length
-
-
-def findFirstTrue(result: ResultModel, cube, cirquit: int, maxHeight, w):
-    for i in range(maxHeight):
-        for j in range(w):
-            if is_true(result.model[cube[i][j][cirquit]]):
-                return (j, i)
-
-
-def decodeOutput(result: ResultModel, n: int, cube, maxHeight, w):
-    x = []
-    y = []
-    length = None
-    for i in range(n):
-        cirquitX, cirquitY = findFirstTrue(result, cube, i, maxHeight, w)
-        x.append(cirquitX)
-        y.append(cirquitY)
-    return Solution(result.time, x, y, result.length, None)
-
-
 def solveInstance(data: ReadData, encoding: EncodingType, minHeight: int, maxHeight: int) -> ResultModel | Solution:
     # we define a 3 dimensional vector (1d width, 2d height, 3d circuits)
-    cube = [[[Bool(f"cube_{i}_{j}_{k}") for k in range(data.n)]
-             for j in range(data.w)] for i in range(maxHeight)]
-
+    widths = data.dimensions[0]
+    heights = data.dimensions[1]
+    blocksX = [[Bool(f"x{block}_{x}") for x in range(data.w)]
+               for block in range(data.n)]
+    blocksY = [[Bool(f"y{block}_{y}") for y in range(maxHeight)]
+               for block in range(data.n)]
     # length of the plate to minimize
-    l = [Bool(f"l_{i}") for i in range(minHeight - 1, maxHeight)]
-
+    l = [Bool(f"l_{i}") for i in range(minHeight, maxHeight + 1)]
     solver = Solver()
+
+    blockFromBools = []
+    for block in range(data.n):
+        constructBlock = []
+        for x in range(data.w - widths[block] + 1):
+            line = []
+            for i in range(data.w):
+                if (i >= x and i < x + widths[block]):
+                    line.append(blocksX[block][i])
+                else:
+                    line.append(Not(blocksX[block][i]))
+            constructBlock.append(And(line))
+        blockFromBools.append(Or(constructBlock))
+        constructBlock = []
+        for y in range(maxHeight - heights[block] + 1):
+            line = []
+            for i in range(maxHeight):
+                if (i >= y and i < y + heights[block]):
+                    line.append(blocksY[block][i])
+                else:
+                    line.append(Not(blocksY[block][i]))
+            constructBlock.append(And(line))
+        blockFromBools.append(Or(constructBlock))
+    blockFromBools = And(blockFromBools)
 
     # overlapping
     noOverlapping = []
     for i in range(maxHeight):
         for j in range(data.w):
-            noOverlapping += atMostOne(cube[i][j], encoding)
+            line = [And(blocksX[block][j], blocksY[block][i])
+                    for block in range(data.n)]
+            noOverlapping.append(
+                atMostOne(line, encoding, f'noOverlapping_{i}_{j}'))
+    noOverlapping = And(noOverlapping)
 
-    # create rectangles from bool vars
-    allBlocksPositions = []
-    # stack up the blocks
-    stackUp = [atLeastOne(flat([
-        [cube[0][x][block] for x in range(data.w)]
-        for block in range(data.n)
-    ]))]
-    for block in range(data.n):
-        blockWidth = data.dimensions[0][block]
-        blockHeight = data.dimensions[1][block]
-        blockPositions = []
-        for i in range(maxHeight - blockHeight + 1):
-            for j in range(data.w - blockWidth + 1):
-                blockPositionForCoordinates = []
-                if i > 0:
+    # symmetry breaking
+    symmetryBreaking = [lexLessEq(blocksX + blocksY,
+                                  [[blocksX[block][i] for i in reversed(range(data.w))] for block in range(data.n)] + blocksY)]
 
-                    listOfVarsUnderTheBlock = []
-                    bottom = max(0, j - blockWidth + 1)
-                    for y in range(bottom, j + blockWidth):
-                        for other in range(data.n):
-                            listOfVarsUnderTheBlock.append(
-                                cube[i - 1][y][other])
-                    stackUp.append(
-                        Implies(cube[i][j][block],
-                                atLeastOne(flat(cube[i - 1]))
-                                )
-                    )
+    symmetryBreaking += [lexLessEq(blocksX + blocksY,
+                                   blocksX + [[blocksY[block][i] for i in reversed(range(maxHeight))] for block in range(data.n)])]
 
-                for y in range(maxHeight):
-                    for x in range(data.w):
-                        if i <= y < i + blockHeight and j <= x < j + blockWidth:
-                            blockPositionForCoordinates.append(
-                                cube[y][x][block])
-                        else:
-                            blockPositionForCoordinates.append(
-                                Not(cube[y][x][block]))
-                blockPositions.append(And(blockPositionForCoordinates))
-        allBlocksPositions.append(exactlyOne(blockPositions, encoding))
+    symmetryBreaking += [lexLessEq(blocksX + blocksY,
+                                   [[blocksX[block][i] for i in reversed(range(data.w))] for block in range(data.n)] +
+                                   [[blocksY[block][i] for i in reversed(range(maxHeight))] for block in range(data.n)])]
+    symmetryBreaking = And(symmetryBreaking)
     # compute the length consistent wrt the actual circuits positioning
     lengthOfChip = []
     for i in range(minHeight - 1, maxHeight):
-        row = [Or(flat(cube[i]))]
+        row = [Or([blocksY[block][i] for block in range(data.n)])]
         for j in range(i + 1, maxHeight):
-            row.append(Not(Or(flat(cube[j]))))
-        lengthOfChip.append(l[i - minHeight] == And(row))
+            row.append(Not(Or([blocksY[block][j] for block in range(data.n)])))
+        lengthOfChip.append(l[i - minHeight + 1] == And(row))
     lengthOfChip = And(lengthOfChip)
+
+    solver.add(blockFromBools)
     solver.add(noOverlapping)
-    solver.add(allBlocksPositions)
-    solver.add(stackUp)
     solver.add(lengthOfChip)
+    solver.add(symmetryBreaking)
+    solver.add(exactlyOne(l, encoding, "oneLength"))
     timeout = 300000
     solver.set("timeout", timeout)
 
     startTime = time.time()
     hasSolution = False
     model = None
+    print("before solve")
     while True:
         if solver.check() == sat:
             model = solver.model()
-            length = -1
-            for k in range(minHeight, maxHeight):
-                if model.evaluate(l[k - minHeight]):
-                    length = k
+            executionTime = time.time() - startTime
+            if executionTime >= 300:
+                break
+            # print("x")
+            # for b in range(data.n):
+            #    print([int(is_true(model[blocksX[b][i]]))
+            #           for i in range(data.w)])
+            # print("y")
+            # for b in range(data.n):
+            #    print([int(is_true(model[blocksY[b][i]]))
+            #           for i in range(maxHeight)])
+            # print("l")
+            # print([int(is_true(model[l[i]]))
+            #      for i in range(0, maxHeight - minHeight + 1)])
+            length = 0
+            for k in range(0, maxHeight + 1 - minHeight):
+                if model.evaluate(l[k]):
+                    length = k + minHeight
 
             # prevent next model from using the same assignment as a previous model
             solver.add(atLeastOne([l[i - minHeight]
@@ -127,11 +122,13 @@ def solveInstance(data: ReadData, encoding: EncodingType, minHeight: int, maxHei
             # break when it is impossible to improve anymore the length
             break
     if hasSolution:
-        length += 1
+        print("sol")
         executionTime = time.time() - startTime
-        return decodeOutput(ResultModel(model, executionTime, False, length), data.n, cube, maxHeight, data.w)
+        return decodeOutput(ResultModel(model, executionTime, False, length), data.n, blocksX, blocksY, maxHeight, data.w)
 
     elif solver.reason_unknown() == "timeout":
+        print("timeout")
         return ResultModel(None, 300, None, None)
     else:
+        print("unsat")
         return ResultModel(model, None, True, None)

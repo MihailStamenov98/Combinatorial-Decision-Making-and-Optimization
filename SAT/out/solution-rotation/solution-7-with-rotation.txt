@@ -1,0 +1,12 @@
+14 14
+9
+3 3 3 0 True
+3 4 10 3 True
+3 5 9 6 True
+3 6 3 6 True
+3 7 3 3 True
+3 8 6 0 True
+3 9 0 0 False
+5 4 0 9 True
+5 10 4 9 True
+1890.9 ms
