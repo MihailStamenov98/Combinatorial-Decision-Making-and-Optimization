@@ -15,7 +15,7 @@ class ReturnType:
         self.draw = args.draw
         self.instances = [
             args.instance] if args.instance is not None else range(1, 41)
-        self.solvers = [Solver.pulp] if args.pulp is not None else [
+        self.solvers = [Solver.pulp] if args.pulp else [
             Solver.gurobipy]
         if args.all:
             self.solvers = [Solver.gurobipy, Solver.pulp]

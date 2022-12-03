@@ -1,5 +1,5 @@
 model number 1
-encoding = PULP_CBC_CMD
-88497.4 ms
+encoding = GUROBI_CMD
+not solved
 
 
