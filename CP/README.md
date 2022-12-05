@@ -25,9 +25,11 @@ You can choose restart. The oprions are:
 The default is 2.<br>
 Example:<br>
 <code> python cp.py -r 1</code><br>
-Use flag <code> -all </code> to run all searches consequently.
+Use flag <code> -all </code> to run all searches consequently for no trotation.
 Example:<br>
 <code> python cp.py -all</code><br>
+Or with rotation:<br>
+<code> python cp.py -all -r</code><br>
 One can make selections from all search strategieas using tags <code>-s</code> and <code>-r</code> together with <code>-all</code><br>
 <code> python cp.py -all -s 1</code><br>
 <code> python cp.py -all -r 1</code><br>
