@@ -15,7 +15,7 @@ The alternatives are:<br>
 * 4-heule <br>
 The default one is 1.
 Example:<br>
-<code> python sat.py -e</code><br>
+<code> python sat.py -e 2</code><br>
 If you want your execution to draw the solution use tag <code> -d</code><br>
 Use flag <code> -all </code> to run all encodings consequently for no trotation.
 Example:<br>
