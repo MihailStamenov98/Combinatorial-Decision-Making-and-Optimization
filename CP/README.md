@@ -5,7 +5,7 @@ To run all instances with the main solver (chuffed) withot rotation use: <br>
 <code> python cp.py </code>
 Add tag <code>-r</code> to use the main solution with rotation.  
 <code> python cp.py -r</code>
-To run one instance use <code>-i<c/ode> and then the number:
+To run one instance use <code>-i</code> and then the number:
 <code> python cp.py -i 12</code>
 You can choose to use gecode with tag <code> -g </code>
 If you want your execution to draw the solution use tag <code> -d</code>
