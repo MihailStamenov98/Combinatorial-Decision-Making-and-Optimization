@@ -7,7 +7,7 @@ class ReturnType:
         self.rotated = args.rotation
         self.draw = args.draw
         self.instances = [
-            args.instance] if args.instance is not None else range(15, 20)
+            args.instance] if args.instance is not None else range(15, 30)
         self.encodings = [args.encoding] if args.encoding is not None else [1]
         if args.all:
             self.encodings = range(1, 5)

@@ -32,8 +32,8 @@ def solve(constraints, solver: Solver, data: ReadData, rotation: bool = False):
     for var in problem.variables():
         key, val = var.name, round(var.value())
         keyComponents = key.split('_')
-        # if keyComponents[0] == 'b' and keyComponents[1] == '9' and keyComponents[2] == '10':
-        #    print(key, val)
+        # if keyComponents[0] == 'b' and keyComponents[1] == '2' and keyComponents[2] == '3':
+        #     print(key, val)
         if keyComponents[0] == 'x':
             x[int(keyComponents[1])] = val
         elif keyComponents[0] == 'y':
@@ -42,9 +42,20 @@ def solve(constraints, solver: Solver, data: ReadData, rotation: bool = False):
             r[int(keyComponents[1])] = val
         elif keyComponents[0] == 'l':
             l = val
-
     if elapsedTime >= timeout:
         return Solution(elapsedTime, [], [], -1, r)
     if result == 'Optimal':
         return Solution(elapsedTime, x, y, l, r)
     return Solution(elapsedTime, [], [], -1, r)
+
+
+def lessOrEq(p, q, n, bigNumber, prefix):
+    c = [LpVariable(f'{prefix}csymetry_{k}', lowBound=0,
+                    upBound=bigNumber, cat=LpInteger) for k in range(n)]
+    constraints = [p[0] == q[0] + c[0]] + [p[0] <= q[0]]
+    sumAll = c[0]
+    for i in range(n):
+        constraints.append(p[i] <= q[i] + sumAll * bigNumber + c[i])
+        constraints.append(p[i] == q[i] + c[i])
+        sumAll = sumAll + c[i]
+    return constraints

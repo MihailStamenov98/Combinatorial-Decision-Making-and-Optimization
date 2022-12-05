@@ -46,7 +46,11 @@ def main():
 
             solution = solve(constraints, solver,
                              data, args.rotated == True)
-            print(solution.x)
+            # print(data.dimensions[0])
+            # print(data.dimensions[1])
+            # print(solution.x)
+            # print(solution.y)
+            # print(solution.rotated)
             if solution.x != []:
                 coordinates = list(zip(solution.x, solution.y))
                 elapsedTime = f'{solution.time * 1000:.1f} ms'

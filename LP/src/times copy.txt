@@ -1,0 +1,88 @@
+model number 1
+encoding = GUROBI_CMD
+33.7 ms
+33.9 ms
+30.9 ms
+34.4 ms
+45.9 ms
+47.4 ms
+59.8 ms
+65.3 ms
+46.4 ms
+221.4 ms
+233.4 ms
+518.2 ms
+671.8 ms
+585.5 ms
+871.9 ms
+11779.1 ms
+1055.9 ms
+3421.7 ms
+70831.1 ms
+6271.8 ms
+156740.0 ms
+not solved
+3971.5 ms
+1355.1 ms
+not solved
+48864.8 ms
+20277.7 ms
+17125.6 ms
+18478.1 ms
+not solved
+1328.1 ms
+not solved
+3223.9 ms
+53554.9 ms
+not solved
+17068.0 ms
+not solved
+not solved
+not solved
+not solved
+
+
+model number 2
+encoding = PULP_CBC_CMD
+30.4 ms
+68.8 ms
+99.3 ms
+616.5 ms
+1076.3 ms
+17213.1 ms
+6753.2 ms
+14545.3 ms
+43669.3 ms
+36280.9 ms
+not solved
+51088.8 ms
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+not solved
+
+
