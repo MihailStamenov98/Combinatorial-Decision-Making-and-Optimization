@@ -54,7 +54,7 @@ def parsArguments():
     parser.add_argument("-res", "--restart", help='''Restart type (1 restart_linear(100)
                                                                 2 restart_luby(100)
                                                                 3 restart_none 
-                                                                default 3''', required=False, type=int)
+                                                                default 2''', required=False, type=int)
     parser.add_argument("-all", "--all", help="Flag to decide whether to run all searches",
                         required=False, action='store_true')
     args = parser.parse_args()
