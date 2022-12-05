@@ -28,7 +28,7 @@ Example:<br>
 Use flag <code> -all </code> to run all searches consequently.
 Example:<br>
 <code> python cp.py -all</code><br>
-One can make selections from all search strategieas using tags <code>-s<c/ode> and <code>-r<c/ode> together with <code>-all<c/ode><br>
+One can make selections from all search strategieas using tags <code>-s</code> and <code>-r</code> together with <code>-all</code><br>
 <code> python cp.py -all -s 1</code><br>
 <code> python cp.py -all -r 1</code><br>
 If you use both tags <code>-s</code> and <code>-r</code> with <code>-all</code> the code will filter all default search strategies with the givven restart and search and it is possible not to find any and even if it find it would be exactly one. Thus, if one wants to specify the search and restart do not use tag <code>-all</code>.
