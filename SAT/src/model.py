@@ -28,26 +28,12 @@ def solveInstance(data: ReadData, encoding: EncodingType, minHeight: int, maxHei
 
     blockFromBools = []
     for block in range(data.n):
-        constructBlock = []
-        for x in range(data.w - widths[block] + 1):
-            line = []
-            for i in range(data.w):
-                if (i >= x and i < x + widths[block]):
-                    line.append(blocksX[block][i])
-                else:
-                    line.append(Not(blocksX[block][i]))
-            constructBlock.append(And(line))
-        blockFromBools.append(Or(constructBlock))
-        constructBlock = []
-        for y in range(maxHeight - heights[block] + 1):
-            line = []
-            for i in range(maxHeight):
-                if (i >= y and i < y + heights[block]):
-                    line.append(blocksY[block][i])
-                else:
-                    line.append(Not(blocksY[block][i]))
-            constructBlock.append(And(line))
-        blockFromBools.append(Or(constructBlock))
+        constructBlockX = getPossibleSetsOfCirquit(
+            data.w, widths[block], blocksX[block], encoding, f'exactly_one_blockX_{block}')
+        blockFromBools.append(constructBlockX)
+        constructBlockY = getPossibleSetsOfCirquit(
+            maxHeight, heights[block], blocksY[block], encoding, f'exactly_one_blockY_{block}')
+        blockFromBools.append(constructBlockY)
     blockFromBools = And(blockFromBools)
 
     # overlapping

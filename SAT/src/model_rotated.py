@@ -31,18 +31,18 @@ def solveInstanceRotated(data: ReadData, encoding: EncodingType, minHeight: int,
     blockFromBools = []
     for block in range(data.n):
         constructBlockX = getPossibleSetsOfCirquit(
-            data.w, widths[block], blocksX[block])
+            data.w, widths[block], blocksX[block], encoding, f'exactly_one_blockX_{block}_no_rotation')
         constructBlockY = getPossibleSetsOfCirquit(
-            maxHeight, heights[block], blocksY[block])
+            maxHeight, heights[block], blocksY[block], encoding, f'exactly_one_blockY_{block}_no_rotation')
         blockFromBools.append(Implies(Not(r[block]), And(
-            Or(constructBlockX), Or(constructBlockY))))
+            constructBlockX, constructBlockY)))
 
         constructBlockX = getPossibleSetsOfCirquit(
-            data.w, heights[block], blocksX[block])
+            data.w, heights[block], blocksX[block], encoding, f'exactly_one_blockX_{block}_rotation')
         constructBlockY = getPossibleSetsOfCirquit(
-            maxHeight, widths[block], blocksY[block])
+            maxHeight, widths[block], blocksY[block], encoding, f'exactly_one_blockY_{block}_rotation')
         blockFromBools.append(Implies(r[block], And(
-            Or(constructBlockX), Or(constructBlockY))))
+            constructBlockX, constructBlockY)))
     blockFromBools = And(blockFromBools)
 
     # overlapping
