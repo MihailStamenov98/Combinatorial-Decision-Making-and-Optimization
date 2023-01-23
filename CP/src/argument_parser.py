@@ -9,7 +9,7 @@ class ReturnType:
         if args.gecode:
             solverStrategyes = [(1, 3), (2, 3), (3, 1), (4, 1), (4, 2), (5, 3)]
         else:
-            solverStrategyes = [(1, 3), (2, 2), (2, 1), (5, 3), (5, 2)]
+            solverStrategyes = [(1, 3), (2, 2), (2, 1), (5, 3), (5, 2), (1, 2)]
 
         filteredSolverStrategyes = []
         if args.search is not None and args.restart is not None:
@@ -26,7 +26,7 @@ class ReturnType:
         elif filteredSolverStrategyes != []:
             self.solverStrategyes = filteredSolverStrategyes
         else:
-            self.solverStrategyes = [(5, 2)]
+            self.solverStrategyes = [(1, 2)]
         self.solver = "gecode" if args.gecode else "chuffed"
         self.modelToUse = ModelType.rotated.value if args.rotation else ModelType.normal.value
         self.rotated = args.rotation

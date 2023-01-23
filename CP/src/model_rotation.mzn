@@ -5,11 +5,7 @@ int: search;
 int: restart;
 
 int: chip_width;
-int: min_blocks_on_row = if (chip_width div max_size)>0 then (chip_width div max_size) else 1 endif;
-int: chip_max_height = max_size * (if n_blocks mod min_blocks_on_row == 0 
-                                            then (n_blocks div min_blocks_on_row) 
-                                            else (n_blocks div min_blocks_on_row) + 1 
-                                            endif);
+int: chip_max_height;
 int: n_blocks;   % Number of blocks
 set of int: BLOCKS = 1..n_blocks;
 array[BLOCKS] of int: widths;

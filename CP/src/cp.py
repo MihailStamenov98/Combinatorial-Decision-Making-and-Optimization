@@ -12,7 +12,8 @@ PROJECT_ROOT = os.path.abspath(os.path.join(
     os.pardir)
 )
 sys.path.append(PROJECT_ROOT)
-from utils import writeFile, WriteData, readFile, Folder, plotSolution, Solution
+from utils import writeFile, WriteData, readFile, Folder, plotSolution, Solution, chipMaxHeight
+
 
 def decodeMinizincOutput(result, i, rotated: bool) -> Solution:
     time = 300
@@ -57,7 +58,8 @@ def saveTimes(times):
             model += 1
             isinstance = 1
             for x in time:
-                f.write(f'instance-{isinstance} - {x}\n')
+                f.write(
+                    f'instance-{isinstance} -                  {x}       \n')
                 isinstance += 1
 
 
@@ -70,12 +72,14 @@ def main():
         print(strategy)
         for instance in args.instances:
             data = None
-            if filesData[instance-1] is None:
+            if filesData[instance - 1] is None:
                 data = readFile(instance)
-                filesData[instance-1] = data
+                filesData[instance - 1] = data
             else:
-                data = filesData[instance-1]
-            createDZN(instance, strategy[0], strategy[1], data)
+                data = filesData[instance - 1]
+            chipMaxHeightNumber = chipMaxHeight(data, args.rotated)
+            createDZN(instance, strategy[0],
+                      strategy[1], chipMaxHeightNumber, data)
             command = f'minizinc -s --output-time --time-limit {300000} --solver {args.solver} -f {args.modelToUse} "../instances_dzn/ins-{instance}.dzn"'
             result = subprocess.getoutput(command)
             solution = decodeMinizincOutput(result, instance, args.rotated)

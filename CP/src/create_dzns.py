@@ -12,12 +12,11 @@ sys.path.append(PROJECT_ROOT)
 from utils import ReadData, readFile
 
 
-
-def createDZN(i:int, search, restart, data: ReadData = None):
+def createDZN(i: int, search, restart, chipMaxHeight, data: ReadData = None):
     outfile = os.path.join(
-    cur_path,
-    "instances_dzn",
-    f'ins-{i}.dzn')
+        cur_path,
+        "instances_dzn",
+        f'ins-{i}.dzn')
     if data is None:
         data = readFile(i)
     with open(outfile, 'w') as out:
@@ -27,4 +26,4 @@ def createDZN(i:int, search, restart, data: ReadData = None):
         out.write(f"heights={data.dimensions[1]};\n")
         out.write(f"search={search};\n")
         out.write(f"restart={restart};\n")
-    
+        out.write(f"chip_max_height={chipMaxHeight};\n")
