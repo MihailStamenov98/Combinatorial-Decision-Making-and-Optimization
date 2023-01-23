@@ -12,6 +12,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(
 )
 sys.path.append(PROJECT_ROOT)
 from utils import ReadData, Solution
+from common_model_finctions import getPossibleSetsOfCirquit
 
 
 def solveInstance(data: ReadData, encoding: EncodingType, minHeight: int, maxHeight: int) -> ResultModel | Solution:
