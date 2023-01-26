@@ -111,11 +111,19 @@ def solveInstance(data: ReadData, encoding: EncodingType, minHeight: int, maxHei
     if hasSolution:
         print("sol")
         executionTime = time.time() - startTime
-        return decodeOutput(ResultModel(model, executionTime, False, length), data.n, blocksX, blocksY, maxHeight, data.w)
+        output = decodeOutput(ResultModel(
+            model, executionTime, False, length), data.n, blocksX, blocksY, maxHeight, data.w)
+        solver.reset()
+        del blocksX
+        del blocksY
+        del l
+        return output
 
     elif solver.reason_unknown() == "timeout":
         print("timeout")
+        solver.reset()
         return ResultModel(None, 300, None, None)
     else:
         print("unsat")
+        solver.reset()
         return ResultModel(model, None, True, None)

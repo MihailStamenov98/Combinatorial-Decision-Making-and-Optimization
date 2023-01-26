@@ -1,12 +1,12 @@
 13 13
 9
-3 3 3 0 True
-3 4 9 3 True
-3 5 0 10 True
-3 6 0 4 False
-3 7 6 0 True
-3 8 5 10 True
-4 3 0 0 True
-4 4 9 6 True
-7 6 3 3 True
-1023.6 ms
+3 3 0 10 True
+3 4 6 7 True
+3 5 0 0 True
+3 6 10 3 False
+3 7 3 10 True
+3 8 5 0 True
+4 3 10 9 True
+4 4 6 3 True
+7 6 0 3 True
+722.7 ms

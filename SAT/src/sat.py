@@ -13,19 +13,18 @@ PROJECT_ROOT = os.path.abspath(os.path.join(
     os.pardir)
 )
 sys.path.append(PROJECT_ROOT)
+
 from utils import Solution, writeFile, WriteData, readFile, Folder, plotSolution, chipMinHeight, chipMaxHeight
 
 
-def saveTimes(times):
-    with open('times.txt', 'w') as f:
-        model = 1
+def saveTimes(times, instance, encoding):
+    with open('times.txt', 'a') as f:
+        f.write(f'ins-{instance} enc-{encoding}-            ')
         for time in times:
-            f.write(f'model number {model}\n')
-            model += 1
-            isinstance = 1
             for x in time:
-                f.write(f'{x}\n')
-                isinstance += 1
+                f.write(f'{x}          ')
+        # if encoding == 4:
+        f.write('\n')
 
 
 def main():
@@ -33,7 +32,6 @@ def main():
     times = []
     for encoding in args.encodings:
         times.append([])
-        times[-1].append(f'encoding = {encoding}')
         print(f'encoding = {encoding}')
         for instance in args.instances:
             data = readFile(instance)
@@ -51,7 +49,7 @@ def main():
                 writeData = WriteData(data.n, data.w, result.h,
                                       data.dimensions, coordinates, elapsedTime, result.rotated)
                 fileName = writeFile(instance, Folder.SAT.value, writeData)
-                times[-1].append(f'ins-{instance} -    {elapsedTime}')
+                times[-1].append(f'{result.time * 1000:.1f}')
                 print(f'ins-{instance} -    {elapsedTime}')
                 if args.draw:
                     fileNmae = (
@@ -64,9 +62,8 @@ def main():
             elif result.model is None and not result.isUnsatisfiable:
                 times[-1].append("no result")
                 continue
-        times[-1].append('\n')
 
-    saveTimes(times)
+    saveTimes(times, args.instances[0], encoding)
 
 
 if __name__ == '__main__':
